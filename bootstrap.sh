@@ -77,7 +77,7 @@ php -f setup/index.php install \
 chown -R www-data:www-data .
 
 # Deploy static view files for better performance
-php -f dev/tools/Magento/Tools/View/deploy.php
+php -f dev/tools/Magento/Tools/View/deploy.php -- --verbose=0
 
 set +x
 echo "Installed Magento application in ${magento_dir}"
