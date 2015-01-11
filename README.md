@@ -36,6 +36,18 @@ git clone https://github.com/buskamuza/magento2-product-vagrant.git .
 vagrant up
 ```
 
+### GitHub Limitations
+
+It may happen that you face with GitHub limits on number of downloads (used by Composer to download Magento dependencies).
+It may significantly slow-down the installation due to cloning all the libraries from GitHub repositories instead of downloading ZIP archives. Or it even may lead to termination of the installation.
+
+If you have GitHub account, you can bypass this limitation by using OAuth token in Composer configuration. See [API rate limit and OAuth tokens](https://getcomposer.org/doc/articles/troubleshooting.md#api-rate-limit-and-oauth-tokens) for more information.
+
+For the Vagrant configuration you may specify your token in `local.config/github.oauth.token` file after cloning the repository. The file is ignored by Git, so, please, create it. Just write your OAuth token in this file (better avoid any empty spaces) and it will be read during deployment. You should see the following message in Vagrant log:
+```
+Installing GitHub OAuth token from /vagrant/local.config/github.oauth.token
+```
+
 ## After Installation
 
 When installation is successfully finished, you'll see location and URL of the installed Magento 2 application:
