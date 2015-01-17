@@ -9,7 +9,7 @@ See Alan Kent's post [REDUCING MAGENTO 2 INSTALL PAIN THROUGH VIRTUALIZATION](ht
 
 > 2. Developers building a customer production site should not clone the Magento 2 repository – they should instead use the officially released Composer packages (with version numbers), downloaded via Composer. They are also likely to make a number of local customizations that they would manage for that specific site.
 
-In his post, Alan touches on the first scenario. While this Vagrant configuration covers the second one. I'd also add a third scenario: developers creating their own extensions. I believe that in this scenario, the Magento code base should also be deployed from packages (covered by this configuration).
+In his post, Alan touches on the first scenario while this Vagrant configuration covers the second one. I'd also add a third scenario: developers creating their own extensions. I believe that in this scenario, the Magento code base should also be deployed from packages (covered by this configuration).
 
 ## What You Get
 
@@ -63,7 +63,7 @@ The URL represented as IP address may be changed in the `Vagrantfile` **before**
 config.vm.network :private_network, ip: '192.168.10.11'
 ```
 
-Additional information:
+## Additional Information
 
 ```
 db host: localhost (not accessible remotely)
@@ -74,6 +74,16 @@ also available db user/password: root/password
 
 Magento admin user/password: admin/iamtheadmin
 ```
+
+## Removing the Installation
+
+If the installation terminates at any time, or you want to get rid of the VM, you can use 
+
+``` 
+vagrant destroy
+```
+from inside the Magento 2 product folder.
+
 
 ## Related Repositories
 
