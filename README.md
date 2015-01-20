@@ -37,9 +37,26 @@ git clone https://github.com/buskamuza/magento2-product-vagrant.git .
 vagrant up
 ```
 
+### Hostname
+
+By default hostname of the Magento web-site is equal to external IP address of the VM that is specified in `Vagrantfile`
+```
+config.vm.network :private_network, ip: '192.168.10.11'
+```
+
+If you want to use a specific name for the web-site, create `local.config/hostname` file and specify the name there.
+
+Also you need to update your system `hosts` file with a record that links the VM's IP address and hostname. For example,
+```
+192.168.10.11 magento2.dev
+```
+
+Where `192.168.10.11` is IP address specified in `Vagrantfile` and `magento2.dev` is hostname you want to use.
+
 ### GitHub Limitations
 
 Be aware that you may encounter GitHub limits on the number of downloads (used by Composer to download Magento dependencies).
+
 These limits may significantly slow down the installation since all of the libraries will be cloned from GitHub repositories instead of downloaded as ZIP archives. In the worst case, these limitations may even terminate the installation.
 
 If you have a GitHub account, you can bypass these limitations by using an OAuth token in the Composer configuration. See [API rate limit and OAuth tokens](https://getcomposer.org/doc/articles/troubleshooting.md#api-rate-limit-and-oauth-tokens) for more information.
@@ -57,11 +74,8 @@ Installed Magento application in /var/www/magento2
 Access front-end at http://192.168.10.11/
 Access back-end at http://192.168.10.11/admin/
 ```
-The directory is a path on the VM.
-The URL represented as IP address may be changed in the `Vagrantfile` **before** installation:
-```
-config.vm.network :private_network, ip: '192.168.10.11'
-```
+
+`/var/www/magento2` is a path to your Magento installation on the VM.
 
 ## Additional Information
 

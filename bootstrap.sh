@@ -7,15 +7,30 @@ apt-get update
 # Determine external IP address
 set +x
 IP=`ifconfig eth1 | grep inet | awk '{print $2}' | sed 's/addr://'`
-echo "IP address is $IP"
+echo "IP address is '${IP}'"
 set -x
+
+# Determine hostname for Magento web-site
+hostname_file="/vagrant/local.config/hostname"
+if [ -f ${hostname_file} ]; then
+    set +x
+    HOST=`cat ${hostname_file}`
+    echo "Determined hostname '${HOST}' from '${hostname_file}' file"
+    set -x
+else
+    # Use external IP address as hostname
+    set +x
+    HOST=${IP}
+    echo "Use IP address '${HOST}' as hostname"
+    set -x
+fi
 
 # Setup Apache
 apt-get install -y apache2
 a2enmod rewrite
 apache_config="/etc/apache2/sites-available/magento2.conf"
 cp /vagrant/magento2.vhost.conf ${apache_config}
-sed -i "s/<host>/$IP/g" ${apache_config}
+sed -i "s/<host>/${HOST}/g" ${apache_config}
 # Enable Magento virtual host
 a2ensite magento2.conf
 # Disable default virtual host
@@ -41,6 +56,7 @@ mysql -u root -ppassword -e "create database magento;"
 mysql -u root -ppassword -e "GRANT ALL ON magento.* TO magento@localhost IDENTIFIED BY 'magento';"
 
 # Setup Composer
+apt-get install -y git
 cd /tmp
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
@@ -63,7 +79,7 @@ php -f setup/index.php install \
         --db_user=magento \
         --db_pass=magento \
         --backend_frontname=admin \
-        --base_url=http://${IP}/ \
+        --base_url=http://${HOST}/ \
         --language=en_US \
         --timezone=America/Chicago \
         --currency=USD \
@@ -81,5 +97,8 @@ php -f dev/tools/Magento/Tools/View/deploy.php -- --verbose=0
 
 set +x
 echo "Installed Magento application in ${magento_dir}"
-echo "Access front-end at http://$IP/"
-echo "Access back-end at http://$IP/admin/"
+echo "Access front-end at http://${HOST}/"
+echo "Access back-end at http://${HOST}/admin/"
+if [ ${HOST} != ${IP} ]; then
+    echo "Don't forget to update your 'hosts' file with '${IP} ${HOST}'"
+fi
