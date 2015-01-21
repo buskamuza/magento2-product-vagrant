@@ -29,7 +29,7 @@ You need to install:
 - Vagrant
 - VirtualBox (used by the current configuration)
 
-To install, configure and run the Magento VM, you need to launch virtualbox and then execute the following via command line:
+To install, configure, and run the Magento VM, you need to launch virtualbox and then execute the following via command line:
 
 ```
 cd magento2-product # empty folder for the Magento 2 product
@@ -39,16 +39,16 @@ vagrant up
 
 ### Hostname
 
-Hostname of the Magento application is determined from hostname of the VM defined in the `Vagrantfile`:
+The hostname of the Magento application is derived from hostname of the VM defined in the `Vagrantfile`:
 ```
 config.vm.hostname = "magento2.product.dev"
 ```
 
-Change this value in the `Vagrantfile`, if you want to use different hostname.
+Change this value in the `Vagrantfile` if you want to use different hostname.
 
-If by some reason, Vagrant can't determine hostname of the VM, it will use its IP address (also specified in `Vagrantfile`).
+If Vagrant can't determine hostname of the VM for some reason, it will use its IP address (also specified in `Vagrantfile`).
 
-Also you need to update your system `hosts` file with a record that links IP address and hostname of the VM.
+Also make sure you update your system `hosts` file with a record that links the IP address and hostname of the VM.
 For the following `Vagrantfile`
 ```
 ...
