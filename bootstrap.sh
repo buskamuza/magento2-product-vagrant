@@ -11,13 +11,8 @@ echo "IP address is '${IP}'"
 set -x
 
 # Determine hostname for Magento web-site
-hostname_file="/vagrant/local.config/hostname"
-if [ -f ${hostname_file} ]; then
-    set +x
-    HOST=`cat ${hostname_file}`
-    echo "Determined hostname '${HOST}' from '${hostname_file}' file"
-    set -x
-else
+HOST=`hostname -f`
+if [ -z ${HOST} ]; then
     # Use external IP address as hostname
     set +x
     HOST=${IP}
@@ -35,14 +30,15 @@ sed -i "s/<host>/${HOST}/g" ${apache_config}
 a2ensite magento2.conf
 # Disable default virtual host
 sudo a2dissite 000-default
-# Create Magento root dir
-magento_dir="/var/www/magento2"
-mkdir ${magento_dir}
 
 # Setup PHP
 apt-get install -y php5 php5-mhash php5-mcrypt php5-curl php5-cli php5-mysql php5-gd php5-intl curl
-ln -s /etc/php5/mods-available/mcrypt.ini /etc/php5/apache2/conf.d/20-mcrypt.ini
-ln -s /etc/php5/mods-available/mcrypt.ini /etc/php5/cli/conf.d/20-mcrypt.ini
+if [ ! -f /etc/php5/apache2/conf.d/20-mcrypt.ini ]; then
+    ln -s /etc/php5/mods-available/mcrypt.ini /etc/php5/apache2/conf.d/20-mcrypt.ini
+fi
+if [ ! -f /etc/php5/cli/conf.d/20-mcrypt.ini ]; then
+    ln -s /etc/php5/mods-available/mcrypt.ini /etc/php5/cli/conf.d/20-mcrypt.ini
+fi
 echo "date.timezone = America/Chicago" >> /etc/php5/cli/php.ini
 
 # Restart Apache
@@ -52,14 +48,16 @@ service apache2 restart
 debconf-set-selections <<< 'mysql-server mysql-server/root_password password password'
 debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password password'
 apt-get install -q -y mysql-server-5.6 mysql-client-5.6
-mysql -u root -ppassword -e "create database magento;"
+mysql -u root -ppassword -e "create database if not exists magento;"
 mysql -u root -ppassword -e "GRANT ALL ON magento.* TO magento@localhost IDENTIFIED BY 'magento';"
 
 # Setup Composer
 apt-get install -y git
-cd /tmp
-curl -sS https://getcomposer.org/installer | php
-mv composer.phar /usr/local/bin/composer
+if [ ! -f /usr/local/bin/composer ]; then
+    cd /tmp
+    curl -sS https://getcomposer.org/installer | php
+    mv composer.phar /usr/local/bin/composer
+fi
 github_token="/vagrant/local.config/github.oauth.token"
 if [ -f ${github_token} ]; then
     set +x
@@ -69,6 +67,10 @@ if [ -f ${github_token} ]; then
 fi
 
 # Install Magento code base
+# Create Magento root dir
+magento_dir="/var/www/magento2"
+mkdir ${magento_dir}
+
 cd ${magento_dir}
 composer create-project --stability=beta magento/product-community-edition .
 

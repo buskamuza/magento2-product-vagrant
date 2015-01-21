@@ -12,7 +12,7 @@ Vagrant.configure(2) do |config|
      vb.memory = 2048
   end
   config.vm.network :private_network, ip: '192.168.10.11'
-  config.vm.host_name = "magento2.product.dev"
+  config.vm.hostname = "magento2.product.dev"
   config.vm.synced_folder '.', '/vagrant', nfs: true
 
   config.vm.provision :shell, path: "bootstrap.sh"

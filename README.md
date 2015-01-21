@@ -39,19 +39,27 @@ vagrant up
 
 ### Hostname
 
-By default hostname of the Magento web-site is equal to external IP address of the VM that is specified in `Vagrantfile`
+Hostname of the Magento application is determined from hostname of the VM defined in the `Vagrantfile`:
 ```
+config.vm.hostname = "magento2.product.dev"
+```
+
+Change this value in the `Vagrantfile`, if you want to use different hostname.
+
+If by some reason, Vagrant can't determine hostname of the VM, it will use its IP address (also specified in `Vagrantfile`).
+
+Also you need to update your system `hosts` file with a record that links IP address and hostname of the VM.
+For the following `Vagrantfile`
+```
+...
 config.vm.network :private_network, ip: '192.168.10.11'
+config.vm.hostname = "magento2.product.dev"
+...
 ```
-
-If you want to use a specific name for the web-site, create `local.config/hostname` file and specify the name there.
-
-Also you need to update your system `hosts` file with a record that links the VM's IP address and hostname. For example,
+Specify the following in your `hosts` file:
 ```
-192.168.10.11 magento2.dev
+192.168.10.11    magento2.dev
 ```
-
-Where `192.168.10.11` is IP address specified in `Vagrantfile` and `magento2.dev` is hostname you want to use.
 
 ### GitHub Limitations
 
@@ -89,9 +97,16 @@ also available db user/password: root/password
 Magento admin user/password: admin/iamtheadmin
 ```
 
+## Troubleshooting
+
+If the installation terminates at any time, you can run it again using the following command:
+```
+vagrant provision
+```
+
 ## Removing the Installation
 
-If the installation terminates at any time, or you want to get rid of the VM, you can use 
+If or you want to get rid of the VM, you can use 
 
 ``` 
 vagrant destroy
