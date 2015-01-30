@@ -61,6 +61,28 @@ Specify the following in your `hosts` file:
 192.168.10.11    magento2.dev
 ```
 
+### Optional Arguments for Magento Installation
+
+There are several options that allow customize installation process of the Magento application.
+The options are declared in `Vagrant` file as following:
+```
+s.args = [
+  #"reinstall",
+  "with_sample_data",
+  "deploy_static_view_files",
+]
+```
+`#` (comment sign) disables the option. If you want to enable a particular option, remove this sign.
+And vice versa, uncomment the option to enable it.
+
+List of currently supported arguments:
+
+| Argument | Description | Default |
+|----------|-------------|---------|
+| `reinstall` | Reinstall application if `vagrant provision` is used on already installed instance | disabled |
+| `with_sample_data` | Install Sample Data | enabled |
+| `deploy_static_view_files` | Deploy static view files for better performance | enabled |
+
 ### GitHub Limitations
 
 Be aware that you may encounter GitHub limits on the number of downloads (used by Composer to download Magento dependencies).

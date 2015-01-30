@@ -13,7 +13,14 @@ Vagrant.configure(2) do |config|
   end
   config.vm.network :private_network, ip: '192.168.10.11'
   config.vm.hostname = "magento2.product.dev"
-  config.vm.synced_folder '.', '/vagrant', nfs: true
+  config.vm.synced_folder '.', '/vagrant', type: "nfs"
 
-  config.vm.provision :shell, path: "bootstrap.sh"
+  config.vm.provision :shell do |s|
+      s.path = "bootstrap.sh"
+      s.args = [
+          #"reinstall",
+          "with_sample_data",
+          "deploy_static_view_files",
+      ]
+  end
 end

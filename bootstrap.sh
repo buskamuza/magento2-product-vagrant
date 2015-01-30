@@ -4,6 +4,25 @@ set -ex
 
 apt-get update
 
+# Check arguments
+#
+# Default values
+reinstall='';
+with_sample_data='';
+deploy_static_view_files='';
+for var in "$@"
+do
+    if [ "${var}" == "reinstall" ]; then
+        reinstall=true;
+    fi
+    if [ "${var}" == "with_sample_data" ]; then
+        with_sample_data=true;
+    fi
+    if [ "${var}" == "deploy_static_view_files" ]; then
+        deploy_static_view_files=true;
+    fi
+done
+
 # Determine external IP address
 set +x
 IP=`ifconfig eth1 | grep inet | awk '{print $2}' | sed 's/addr://'`
@@ -48,8 +67,6 @@ service apache2 restart
 debconf-set-selections <<< 'mysql-server mysql-server/root_password password password'
 debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password password'
 apt-get install -q -y mysql-server-5.6 mysql-client-5.6
-mysql -u root -ppassword -e "create database if not exists magento;"
-mysql -u root -ppassword -e "GRANT ALL ON magento.* TO magento@localhost IDENTIFIED BY 'magento';"
 
 # Setup Composer
 apt-get install -y git
@@ -69,33 +86,66 @@ fi
 # Install Magento code base
 # Create Magento root dir
 magento_dir="/var/www/magento2"
-mkdir ${magento_dir}
+if [ ! -d ${magento_dir} ] || [ ${reinstall} ]; then
+	# Create DB
+	db_name="magento"
+    if [ ${reinstall} ]; then
+        mysql -u root -ppassword -e "drop database if exists ${db_name}; create database ${db_name};"
+    else
+    	mysql -u root -ppassword -e "create database if not exists ${db_name};"
+    fi
+	mysql -u root -ppassword -e "GRANT ALL ON ${db_name}.* TO magento@localhost IDENTIFIED BY 'magento';"
 
-cd ${magento_dir}
-composer create-project --stability=beta magento/product-community-edition .
+    if [ -d ${magento_dir} ]; then
+        rm -rf ${magento_dir}
+    fi
+	mkdir ${magento_dir}
+	cd ${magento_dir}
+	if [ ${with_sample_data} ]; then
+	    composer create-project --stability=beta --no-install magento/product-community-edition .
 
-# Install Magento application
-php -f setup/index.php install \
-        --db_host=localhost \
-        --db_name=magento \
-        --db_user=magento \
-        --db_pass=magento \
-        --backend_frontname=admin \
-        --base_url=http://${HOST}/ \
-        --language=en_US \
-        --timezone=America/Chicago \
-        --currency=USD \
-        --admin_lastname=Admin \
-        --admin_firstname=Admin \
-        --admin_email=admin@example.com \
-        --admin_username=admin \
-        --admin_password=iamtheadmin \
-        --use_secure=0
+		# fix minimum stability
+		sed -i.bak 's/"type": "project",/"type": "project",\n    "minimum-stability": "beta",/' composer.json
+		rm -f composer.json.bak
+		# determine version of installed Magento project
+		version=`grep "\"version\"" composer.json | sed 's/ *"version": "\([a-zA-Z0-9.-]\+\)",/\1/'`
 
-chown -R www-data:www-data .
+		composer require "magento/sample-data":"${version}"
+	else
+		composer create-project --stability=beta magento/product-community-edition .
+	fi
 
-# Deploy static view files for better performance
-php -f dev/tools/Magento/Tools/View/deploy.php -- --verbose=0
+	# Install Magento application
+	install_cmd="php -f setup/index.php install \
+			--db_host=localhost \
+			--db_name=magento \
+			--db_user=magento \
+			--db_pass=magento \
+			--backend_frontname=admin \
+			--base_url=http://${HOST}/ \
+			--language=en_US \
+			--timezone=America/Chicago \
+			--currency=USD \
+			--admin_lastname=Admin \
+			--admin_firstname=Admin \
+			--admin_email=admin@example.com \
+			--admin_username=admin \
+			--admin_password=iamtheadmin \
+			--use_secure=0"
+
+	if [ ${with_sample_data} ]; then
+		install_cmd="${install_cmd} --use_sample_data=1"
+	fi
+
+	eval ${install_cmd}
+
+	chown -R www-data:www-data .
+
+	# Deploy static view files for better performance
+	if [ ${deploy_static_view_files} ]; then
+		php -f dev/tools/Magento/Tools/View/deploy.php -- --verbose=0
+	fi
+fi
 
 set +x
 echo "Installed Magento application in ${magento_dir}"
