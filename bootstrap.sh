@@ -107,10 +107,8 @@ if [ ! -d ${magento_dir} ] || [ ${reinstall} ]; then
 		# fix minimum stability
 		sed -i.bak 's/"type": "project",/"type": "project",\n    "minimum-stability": "beta",/' composer.json
 		rm -f composer.json.bak
-		# determine version of installed Magento project
-		version=`grep "\"version\"" composer.json | sed 's/ *"version": "\([a-zA-Z0-9.-]\+\)",/\1/'`
 
-		composer require "magento/sample-data":"${version}"
+		composer require "magento/sample-data":"~0.42.0-beta6"
 	else
 		composer create-project --stability=beta magento/product-community-edition .
 	fi
