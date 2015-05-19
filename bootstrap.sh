@@ -102,37 +102,33 @@ if [ ! -d ${magento_dir} ] || [ ${reinstall} ]; then
 	mkdir ${magento_dir}
 	cd ${magento_dir}
 	if [ ${with_sample_data} ]; then
-	    composer create-project --stability=beta --no-install magento/product-community-edition .
-
-		# fix minimum stability
-		sed -i.bak 's/"type": "project",/"type": "project",\n    "minimum-stability": "beta",/' composer.json
-		rm -f composer.json.bak
-
-		composer require "magento/sample-data":"~0.42.0-beta6"
+	    composer create-project --stability=beta --no-install magento/project-community-edition .
+		composer require "magento/sample-data":"*"
 	else
-		composer create-project --stability=beta magento/product-community-edition .
+		composer create-project --stability=beta magento/project-community-edition .
 	fi
 
+    chmod +x bin/magento
+
 	# Install Magento application
-	install_cmd="php -f setup/index.php install \
-			--db_host=localhost \
-			--db_name=magento \
-			--db_user=magento \
-			--db_pass=magento \
-			--backend_frontname=admin \
-			--base_url=http://${HOST}/ \
-			--language=en_US \
-			--timezone=America/Chicago \
-			--currency=USD \
-			--admin_lastname=Admin \
-			--admin_firstname=Admin \
-			--admin_email=admin@example.com \
-			--admin_username=admin \
-			--admin_password=iamtheadmin \
-			--use_secure=0"
+	install_cmd="./bin/magento setup:install \
+		--db_host=localhost \
+		--db_name=magento \
+		--db_user=magento \
+		--db_password=magento \
+		--backend_frontname=admin \
+		--base_url=http://${HOST}/ \
+		--language=en_US \
+		--timezone=America/Chicago \
+		--currency=USD \
+		--admin_lastname=Admin \
+		--admin_firstname=Admin \
+		--admin_email=admin@example.com \
+		--admin_user=admin \
+		--admin_password=iamtheadmin"
 
 	if [ ${with_sample_data} ]; then
-		install_cmd="${install_cmd} --use_sample_data=1"
+		install_cmd="${install_cmd} --use_sample_data"
 	fi
 
 	eval ${install_cmd}
@@ -141,7 +137,7 @@ if [ ! -d ${magento_dir} ] || [ ${reinstall} ]; then
 
 	# Deploy static view files for better performance
 	if [ ${deploy_static_view_files} ]; then
-		php -f dev/tools/Magento/Tools/View/deploy.php -- --verbose=0
+		./bin/magento setup:static-content:deploy
 	fi
 fi
 
