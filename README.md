@@ -116,7 +116,7 @@ db name: magento
 
 also available db user/password: root/password
 
-Magento admin user/password: admin/iamtheadmin
+Magento admin user/password: admin/1amtheadmin
 ```
 
 ## Troubleshooting

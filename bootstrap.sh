@@ -133,6 +133,11 @@ if [ ! -d ${magento_dir} ] || [ ${reinstall} ]; then
 
 	eval ${install_cmd}
 
+	if [ ${with_sample_data} ]; then
+		# workaround for period of migration from old tool to the new one
+		php ${magento_dir}/dev/tools/Magento/Tools/SampleData/install.php --admin_user=admin
+	fi
+	
 	chown -R www-data:www-data .
 
 	# Deploy static view files for better performance
