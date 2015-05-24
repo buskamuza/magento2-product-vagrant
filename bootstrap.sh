@@ -51,7 +51,7 @@ a2ensite magento2.conf
 sudo a2dissite 000-default
 
 # Setup PHP
-apt-get install -y php5 php5-mhash php5-mcrypt php5-curl php5-cli php5-mysql php5-gd php5-intl curl
+apt-get install -y php5 php5-mhash php5-mcrypt php5-curl php5-cli php5-mysql php5-gd php5-intl php5-xsl curl
 if [ ! -f /etc/php5/apache2/conf.d/20-mcrypt.ini ]; then
     ln -s /etc/php5/mods-available/mcrypt.ini /etc/php5/apache2/conf.d/20-mcrypt.ini
 fi
@@ -112,23 +112,23 @@ if [ ! -d ${magento_dir} ] || [ ${reinstall} ]; then
 
 	# Install Magento application
 	install_cmd="./bin/magento setup:install \
-		--db_host=localhost \
-		--db_name=magento \
-		--db_user=magento \
-		--db_password=magento \
-		--backend_frontname=admin \
-		--base_url=http://${HOST}/ \
+		--db-host=localhost \
+		--db-name=magento \
+		--db-user=magento \
+		--db-password=magento \
+		--backend-frontname=admin \
+		--base-url=http://${HOST}/ \
 		--language=en_US \
 		--timezone=America/Chicago \
 		--currency=USD \
-		--admin_lastname=Admin \
-		--admin_firstname=Admin \
-		--admin_email=admin@example.com \
-		--admin_user=admin \
-		--admin_password=iamtheadmin"
+		--admin-lastname=Admin \
+		--admin-firstname=Admin \
+		--admin-email=admin@example.com \
+		--admin-user=admin \
+		--admin-password=1amtheadmin"
 
 	if [ ${with_sample_data} ]; then
-		install_cmd="${install_cmd} --use_sample_data"
+		install_cmd="${install_cmd} --use-sample-data"
 	fi
 
 	eval ${install_cmd}
