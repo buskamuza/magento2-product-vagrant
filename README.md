@@ -1,6 +1,8 @@
 # Vagrant for magento/product-community-edition
 
-[magento/product-community-edition](https://packagist.org/packages/magento/product-community-edition) is used to deploy a Magento 2 project from [packages](http://packages.magento.com/).
+**:exclamation: Important: admin password has changed! Check you password with bellow documentation if you can't login to the Admin Panel after installation.**
+
+[magento/project-community-edition](https://packagist.org/packages/magento/project-community-edition) is used to deploy a Magento 2 project from [packages](http://packages.magento.com/).
 
 See Alan Kent's post [REDUCING MAGENTO 2 INSTALL PAIN THROUGH VIRTUALIZATION](https://alankent.wordpress.com/2014/12/21/reducing-magento-2-install-pain-through-virtualization/), where he describes two different strategies of using Magento 2 code:
 > ... there are two different ways that developers are likely to interact with the Magento 2 code base now with the public GitHub repository now accepting pull requests.
